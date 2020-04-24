@@ -13,3 +13,7 @@ variable "app_name" {
 variable "commercial_name" {
   type = string
 }
+
+variable "github_token" {
+  type = string
+}

@@ -88,8 +88,23 @@ resource "aws_codepipeline" "pipeline" {
         Owner = "kiqkelevra"
         Repo = var.app_name
         Branch = "master"
-        OAuthToken = 
       }
+    }
+  }
+  stage {
+    name = "Deploy"
+    action {
+      name = "Deploy"
+      category = "Deploy"
+      owner = "AWS"
+      provider = "S3"
+      version = "1"
+      input_artifacts = ["SourceArtifact"]
+      configuration {
+        BucketName = aws_s3_bucket.bucket.id
+        Extract = "true"
+      }
+
     }
   }
 }
