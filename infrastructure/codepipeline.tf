@@ -15,7 +15,7 @@ data "template_file" "codepipeline_policy_template" {
 }
 
 resource "aws_iam_role_policy" "codepipeline_policy" {
-  name = "${var.app_name}_codepípeline_policy"
+  name = "${var.app_name}_codepipeline_policy"
   policy = data.template_file.codepipeline_policy_template.rendered
   role = aws_iam_role.codepipeline_role.id
 }
@@ -84,7 +84,7 @@ resource "aws_codepipeline" "pipeline" {
       provider = "GitHub"
       version = "1"
       output_artifacts = ["source_artifact"]
-      configuration {
+      configuration = {
         Owner = "kiqkelevra"
         Repo = var.app_name
         Branch = "master"
@@ -100,7 +100,7 @@ resource "aws_codepipeline" "pipeline" {
       provider = "S3"
       version = "1"
       input_artifacts = ["source_artifact"]
-      configuration {
+      configuration = {
         BucketName = aws_s3_bucket.bucket.id
         Extract = "true"
       }
