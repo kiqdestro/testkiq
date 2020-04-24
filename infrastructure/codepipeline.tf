@@ -99,7 +99,7 @@ resource "aws_codepipeline" "pipeline" {
       owner = "AWS"
       provider = "S3"
       version = "1"
-      input_artifacts = ["SourceArtifact"]
+      input_artifacts = ["source_artifact"]
       configuration {
         BucketName = aws_s3_bucket.bucket.id
         Extract = "true"
