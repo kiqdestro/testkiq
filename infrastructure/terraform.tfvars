@@ -1,5 +1,5 @@
 region = "us-east-2"
-environment_name = "magic"
+environment_name = "staging"
 app_name = "testkiq"
 commercial_name = ""
 github_token = ""
