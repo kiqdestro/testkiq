@@ -1,5 +1,9 @@
 data "aws_caller_identity" "current" {}
 
+data "aws_s3_bucket" "artifact_bucket" {
+  bucket = module.base.codepipeline_bucket
+}
+
 // CODEPIPELINE
 
 resource "aws_iam_role" "codepipeline_role" {
@@ -10,7 +14,8 @@ resource "aws_iam_role" "codepipeline_role" {
 data "template_file" "codepipeline_policy_template" {
   template = file("${path.module}/assets/codepipeline_policy.json")
   vars = {
-    bucket_arn = aws_s3_bucket.bucket.arn
+    artifact_bucket_arn = data.aws_s3_bucket.artifact_bucket.arn
+    target_bucket_arn = aws_s3_bucket.bucket.arn
   }
 }
 
@@ -20,52 +25,23 @@ resource "aws_iam_role_policy" "codepipeline_policy" {
   role = aws_iam_role.codepipeline_role.id
 }
 
-// CODEBUILD
-
-resource "aws_iam_role" "codebuild_role" {
-  name = "AWSBuildServiceRole-${var.region}-${var.app_name}"
-  assume_role_policy = file("${path.module}/assets/codebuild_role.json")
-}
-
-data "template_file" "codebuild_policy_template" {
-  template = file("${path.module}/assets/codebuild_policy.json")
-  vars = {
-    bucket_arn = aws_s3_bucket.bucket.arn
-  }
-}
-
-resource "aws_iam_role_policy" "codebuild_policy" {
-  name = "${var.app_name}_codebuild_policy"
-  policy = data.template_file.codebuild_policy_template.rendered
-  role = aws_iam_role.codebuild_role.id
-}
-
-resource "aws_codebuild_project" "codebuild" {
-  name = var.app_name
-  service_role = aws_iam_role.codebuild_role.arn
-  artifacts {
-    type = "CODEPIPELINE"
-  }
-  environment {
-    compute_type = "BUILD_GENERAL1_SMALL"
-    image = "aws/codebuild/amazonlinux2-x86_64-standard:2.0"
-    type = "LINUX_CONTAINER"
-    privileged_mode = false
-    environment_variable {
-      name = "ENVIRONMENT"
-      value = var.environment_name
-    }
-  }
-  source {
-    type = "CODEPIPELINE"
-    buildspec = "buildspec.yml"
-  }
-}
-
 // CODEDEPLOY
 
 //resource "aws_iam_role" "codedeploy_role" {
-//  assume_role_policy = file("${path.module}/assets/codedeploy_policy.json")
+//  assume_role_policy = file("${path.module}/assets/codedeploy_role.json")
+//}
+//
+//data "template_file" "codedeploy_policy_template" {
+//  template = file("${path.module}/assets/codedeploy_policy.json")
+//  vars = {
+//    target_bucket_arn = aws_s3_bucket.bucket.arn
+//  }
+//}
+//
+//resource "aws_iam_role_policy" "codedeploy_policy" {
+//  nome = "${var.app_name}_codedeploy_policy"
+//  policy = data.template_file.codedeploy_policy_template.rendered
+//  role = aws_iam_role.codedeploy_role.id
 //}
 
 resource "aws_codepipeline" "pipeline" {
@@ -85,7 +61,8 @@ resource "aws_codepipeline" "pipeline" {
       version = "1"
       output_artifacts = ["source_artifact"]
       configuration = {
-        Owner = "kiqkelevra"
+        Owner = "kiqdestro"
+        OAuthToken = var.github_token
         Repo = var.app_name
         Branch = "master"
       }

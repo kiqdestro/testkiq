@@ -10,17 +10,11 @@
         "s3:PutObject"
       ],
       "Resource": [
-        "${bucket_arn}",
-        "${bucket_arn}/*"
+        "${artifact_bucket_arn}",
+        "${artifact_bucket_arn}/*",
+        "${target_bucket_arn}",
+        "${target_bucket_arn}/*"
       ]
-    },
-    {
-      "Effect": "Allow",
-      "Action": [
-        "codebuild:BatchGetBuilds",
-        "codebuild:StartBuild"
-      ],
-      "Resource": "*"
     }
   ]
 }

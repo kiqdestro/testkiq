@@ -41,7 +41,7 @@ resource "aws_route53_record" "dns_record" {
   zone_id = data.aws_route53_zone.hosted.id
   alias {
     evaluate_target_health = true
-    name = aws_s3_bucket.bucket.website_endpoint
+    name = aws_s3_bucket.bucket.website_domain
     zone_id = aws_s3_bucket.bucket.hosted_zone_id
   }
 }
